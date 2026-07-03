@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.uploads.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/uploads/v1;uploadsv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/uploads/v1;uploadsv1";
 
 import "openai/uploads/v1/uploads_messages.proto";
 

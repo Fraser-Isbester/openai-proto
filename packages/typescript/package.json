@@ -1,0 +1,25 @@
+{
+  "name": "@fraser-isbester/openai-proto",
+  "version": "0.0.0",
+  "description": "Strongly-typed gRPC/Protobuf client stubs mirroring the OpenAI API",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fraser-Isbester/openai-proto"
+  },
+  "type": "commonjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@protobuf-ts/runtime": "^2.9.3",
+    "@protobuf-ts/runtime-rpc": "^2.9.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

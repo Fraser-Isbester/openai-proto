@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  buf:
+    name: buf lint / build / breaking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-setup-action@v1
+      - run: buf lint
+      - run: buf build
+      - name: buf breaking (against main)
+        if: github.event_name == 'pull_request'
+        run: buf breaking --against 'https://github.com/${{ github.repository }}.git#branch=main'
+
+  generate-and-verify:
+    name: buf generate + per-language sanity build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1
+      - run: buf generate
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: Go build sanity check
+        working-directory: gen/go
+        run: |
+          if [ ! -f go.mod ]; then
+            go mod init github.com/Fraser-Isbester/openai-proto/gen/go
+          fi
+          go mod tidy
+          go build ./...
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python import smoke test
+        run: |
+          bash packages/python/postprocess.sh
+          python -m pip install ./packages/python
+          python -c "
+          from openai_proto.chat.v1 import chat_messages_pb2, chat_service_pb2_grpc
+          from openai_proto.realtime.v1 import realtime_service_pb2_grpc
+          req = chat_messages_pb2.ChatCompletionRequest(model='gpt-4o')
+          assert req.model == 'gpt-4o'
+          print('python import smoke test OK')
+          "
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: TypeScript typecheck
+        working-directory: packages/typescript
+        run: |
+          npm ci
+          npm run typecheck

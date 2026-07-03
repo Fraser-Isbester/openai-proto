@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openai-proto-grpc"
+version = "0.0.0"
+description = "Strongly-typed gRPC/Protobuf client stubs mirroring the OpenAI API (github.com/Fraser-Isbester/openai-proto)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "protobuf>=5,<6",
+    "grpcio>=1.60",
+]
+
+[project.urls]
+Homepage = "https://github.com/Fraser-Isbester/openai-proto"
+Repository = "https://github.com/Fraser-Isbester/openai-proto"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["openai_proto*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.pyi"]

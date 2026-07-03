@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.responses.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/responses/v1;responsesv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/responses/v1;responsesv1";
 
 import "google/protobuf/struct.proto";
 import "openai/responses/v1/responses_messages.proto";

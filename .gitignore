@@ -31,5 +31,21 @@ go.work.sum
 # .idea/
 # .vscode/
 
-# Generated protobuf/gRPC stubs (regenerate with `buf generate`)
-gen/
+# Generated protobuf/gRPC stubs (regenerate with `buf generate`).
+# gen/go is the one exception: the release workflow force-commits it
+# (`git add -f`) so `go get` can fetch generated code directly from tags.
+gen/go/
+gen/ts/
+gen/python/
+
+# Generated source + build output for the Python/TypeScript packages
+# (buf generates directly into these; PyPI/npm publishing builds from
+# a fresh `buf generate`, nothing here needs to be committed).
+packages/python/src/
+packages/python/build/
+packages/python/dist/
+packages/python/*.egg-info/
+packages/python/__pycache__/
+packages/typescript/src/
+packages/typescript/dist/
+packages/typescript/node_modules/

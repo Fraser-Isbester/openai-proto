@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, without a leading 'v' (e.g. 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write   # push the Go release commit + tag, create the GitHub Release
+  id-token: write    # PyPI Trusted Publishing (OIDC)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate version input
+        run: |
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'${{ inputs.version }}' is not a valid semver (expected e.g. 0.1.0)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: bufbuild/buf-setup-action@v1
+      - run: buf lint
+      - run: buf build
+      - run: buf generate
+
+      # --- Go: commit generated code, tag, push. Go has no package registry —
+      # `go get` fetches directly from this repo's git tags. ---
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: Commit + tag Go stubs
+        working-directory: gen/go
+        run: |
+          if [ ! -f go.mod ]; then
+            go mod init github.com/Fraser-Isbester/openai-proto/gen/go
+          fi
+          go mod tidy
+          go build ./...
+      - name: Push Go release commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f gen/go
+          git commit -m "chore(release): v${{ inputs.version }}"
+          git tag -a "v${{ inputs.version }}" -m "v${{ inputs.version }}"
+          git push origin HEAD:main
+          git push origin "v${{ inputs.version }}"
+
+      # --- Python: build + publish to PyPI via Trusted Publishing (OIDC, no token). ---
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build Python package
+        run: |
+          bash packages/python/postprocess.sh
+          sed -i "s/^version = \".*\"/version = \"${{ inputs.version }}\"/" packages/python/pyproject.toml
+          python -m pip install --upgrade build
+          python -m build packages/python --outdir packages/python/dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python/dist
+
+      # --- TypeScript: build + publish to npm (classic token auth). ---
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - name: Build and publish npm package
+        working-directory: packages/typescript
+        run: |
+          npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
+          npm ci
+          npm run build
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        run: gh release create "v${{ inputs.version }}" --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

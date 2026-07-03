@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.finetuning.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/finetuning/v1;finetuningv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/finetuning/v1;finetuningv1";
 
 import "openai/finetuning/v1/finetuning_messages.proto";
 

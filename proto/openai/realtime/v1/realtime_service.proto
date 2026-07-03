@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.realtime.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/realtime/v1;realtimev1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/realtime/v1;realtimev1";
 
 import "openai/realtime/v1/realtime_client_events.proto";
 import "openai/realtime/v1/realtime_server_events.proto";

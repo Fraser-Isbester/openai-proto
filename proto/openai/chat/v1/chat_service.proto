@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.chat.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/chat/v1;chatv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/chat/v1;chatv1";
 
 import "openai/chat/v1/chat_messages.proto";
 

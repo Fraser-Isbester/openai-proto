@@ -7,6 +7,10 @@ plugins:
     out: gen/go
     opt: paths=source_relative
   - plugin: buf.build/community/timostamm-protobuf-ts:v2.9.3
-    out: gen/ts
+    out: packages/typescript/src
   - plugin: buf.build/protocolbuffers/python:v26.1
-    out: gen/python
+    out: packages/python/src
+  - plugin: buf.build/protocolbuffers/pyi:v26.1
+    out: packages/python/src
+  - plugin: buf.build/grpc/python:v1.65.5
+    out: packages/python/src

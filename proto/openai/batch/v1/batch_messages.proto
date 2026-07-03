@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.batch.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/batch/v1;batchv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/batch/v1;batchv1";
 
 import "openai/common/v1/common.proto";
 

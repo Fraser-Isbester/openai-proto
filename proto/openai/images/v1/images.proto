@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package openai.images.v1;
 
-option go_package = "github.com/openai/openai-proto/gen/go/openai/images/v1;imagesv1";
+option go_package = "github.com/Fraser-Isbester/openai-proto/gen/go/openai/images/v1;imagesv1";
 
 enum ImageQuality {
   IMAGE_QUALITY_UNSPECIFIED = 0;
