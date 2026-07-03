@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package openai.models.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/models/v1;modelsv1";
+
+import "openai/models/v1/models_messages.proto";
+
+service ModelsService {
+  // GET /v1/models — lists all models available to the caller.
+  rpc ListModels (ListModelsRequest) returns (ListModelsResponse);
+
+  // GET /v1/models/{model} — retrieves a single model by id.
+  rpc RetrieveModel (RetrieveModelRequest) returns (RetrieveModelResponse);
+
+  // DELETE /v1/models/{model} — deletes a fine-tuned model.
+  rpc DeleteModel (DeleteModelRequest) returns (DeleteModelResponse);
+}

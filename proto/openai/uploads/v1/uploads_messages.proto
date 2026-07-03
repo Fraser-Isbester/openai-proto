@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package openai.uploads.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/uploads/v1;uploadsv1";
+
+import "openai/files/v1/files_messages.proto";
+
+message Upload {
+  string id = 1;
+  string object = 2;
+  int64 bytes = 3;
+  int64 created_at = 4;
+  string filename = 5;
+  string purpose = 6;
+  string status = 7;
+  int64 expires_at = 8;
+  // Populated with the ready File object once the upload is completed.
+  optional openai.files.v1.File file = 9;
+}
+
+message UploadPart {
+  string id = 1;
+  string object = 2;
+  int64 created_at = 3;
+  string upload_id = 4;
+}
+
+message CreateUploadRequest {
+  string filename = 1;
+  string purpose = 2;
+  int64 bytes = 3;
+  string mime_type = 4;
+}
+
+message CreateUploadResponse {
+  Upload upload = 1;
+}
+
+message AddUploadPartRequest {
+  string upload_id = 1;
+  bytes data = 2;
+}
+
+message AddUploadPartResponse {
+  UploadPart part = 1;
+}
+
+message CompleteUploadRequest {
+  string upload_id = 1;
+  repeated string part_ids = 2;
+  optional string md5 = 3;
+}
+
+message CompleteUploadResponse {
+  Upload upload = 1;
+}
+
+message CancelUploadRequest {
+  string upload_id = 1;
+}
+
+message CancelUploadResponse {
+  Upload upload = 1;
+}

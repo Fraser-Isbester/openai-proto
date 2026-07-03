@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package openai.models.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/models/v1;modelsv1";
+
+message Model {
+  string id = 1;
+  string object = 2;
+  int64 created = 3;
+  string owned_by = 4;
+}
+
+message ListModelsRequest {}
+
+message ListModelsResponse {
+  string object = 1;
+  repeated Model data = 2;
+}
+
+message RetrieveModelRequest {
+  string model = 1;
+}
+
+message RetrieveModelResponse {
+  Model model = 1;
+}
+
+message DeleteModelRequest {
+  string model = 1;
+}
+
+message DeleteModelResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}

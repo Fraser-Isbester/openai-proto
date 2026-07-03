@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package openai.files.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/files/v1;filesv1";
+
+enum FilePurpose {
+  FILE_PURPOSE_UNSPECIFIED = 0;
+  FILE_PURPOSE_ASSISTANTS = 1;
+  FILE_PURPOSE_ASSISTANTS_OUTPUT = 2;
+  FILE_PURPOSE_BATCH = 3;
+  FILE_PURPOSE_BATCH_OUTPUT = 4;
+  FILE_PURPOSE_FINE_TUNE = 5;
+  FILE_PURPOSE_FINE_TUNE_RESULTS = 6;
+  FILE_PURPOSE_VISION = 7;
+  FILE_PURPOSE_USER_DATA = 8;
+  FILE_PURPOSE_EVALS = 9;
+}
+
+message FileExpirationAfter {
+  // Anchor timestamp after which the expiration policy applies. Only "created_at" is supported.
+  string anchor = 1;
+  // Seconds after the anchor until expiry. Must be between 3600 and 2592000.
+  int64 seconds = 2;
+}
+
+message File {
+  string id = 1;
+  string object = 2;
+  int64 bytes = 3;
+  int64 created_at = 4;
+  string filename = 5;
+  FilePurpose purpose = 6;
+  optional string status = 7;
+  optional string status_details = 8;
+  optional int64 expires_at = 9;
+}
+
+message UploadFileRequest {
+  bytes content = 1;
+  string filename = 2;
+  FilePurpose purpose = 3;
+  optional FileExpirationAfter expires_after = 4;
+}
+
+message UploadFileResponse {
+  File file = 1;
+}
+
+message ListFilesRequest {
+  optional FilePurpose purpose = 1;
+  optional string after = 2;
+  optional int32 limit = 3;
+  optional string order = 4;
+}
+
+message ListFilesResponse {
+  string object = 1;
+  repeated File data = 2;
+  bool has_more = 3;
+  optional string first_id = 4;
+  optional string last_id = 5;
+}
+
+message RetrieveFileRequest {
+  string file_id = 1;
+}
+
+message RetrieveFileResponse {
+  File file = 1;
+}
+
+message DeleteFileRequest {
+  string file_id = 1;
+}
+
+message DeleteFileResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}
+
+message RetrieveFileContentRequest {
+  string file_id = 1;
+}
+
+message RetrieveFileContentResponse {
+  bytes chunk = 1;
+}

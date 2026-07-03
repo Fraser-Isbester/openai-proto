@@ -1,0 +1,308 @@
+syntax = "proto3";
+
+package openai.chat.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/chat/v1;chatv1";
+
+import "google/protobuf/struct.proto";
+
+enum ChatRole {
+  CHAT_ROLE_UNSPECIFIED = 0;
+  CHAT_ROLE_SYSTEM = 1;
+  CHAT_ROLE_USER = 2;
+  CHAT_ROLE_ASSISTANT = 3;
+  CHAT_ROLE_TOOL = 4;
+  CHAT_ROLE_DEVELOPER = 5;
+  CHAT_ROLE_FUNCTION = 6;
+}
+
+enum FinishReason {
+  FINISH_REASON_UNSPECIFIED = 0;
+  FINISH_REASON_STOP = 1;
+  FINISH_REASON_LENGTH = 2;
+  FINISH_REASON_TOOL_CALLS = 3;
+  FINISH_REASON_CONTENT_FILTER = 4;
+  FINISH_REASON_FUNCTION_CALL = 5;
+}
+
+enum ReasoningEffort {
+  REASONING_EFFORT_UNSPECIFIED = 0;
+  REASONING_EFFORT_NONE = 1;
+  REASONING_EFFORT_MINIMAL = 2;
+  REASONING_EFFORT_LOW = 3;
+  REASONING_EFFORT_MEDIUM = 4;
+  REASONING_EFFORT_HIGH = 5;
+  REASONING_EFFORT_XHIGH = 6;
+}
+
+enum AudioFormat {
+  AUDIO_FORMAT_UNSPECIFIED = 0;
+  AUDIO_FORMAT_WAV = 1;
+  AUDIO_FORMAT_MP3 = 2;
+  AUDIO_FORMAT_FLAC = 3;
+  AUDIO_FORMAT_OPUS = 4;
+  AUDIO_FORMAT_PCM16 = 5;
+  AUDIO_FORMAT_AAC = 6;
+}
+
+message ChatCompletionMessage {
+  ChatRole role = 1;
+
+  oneof content {
+    string content_text = 2;
+    ContentPartList content_parts = 5;
+  }
+
+  optional string name = 3;
+  optional string tool_call_id = 4;
+  repeated ToolCall tool_calls = 6;
+  optional string refusal = 7;
+}
+
+message ContentPartList {
+  repeated ContentPart parts = 1;
+}
+
+message ContentPart {
+  oneof part {
+    TextContentPart text = 1;
+    ImageContentPart image = 2;
+    InputAudioContentPart input_audio = 3;
+    FileContentPart file = 4;
+  }
+}
+
+message TextContentPart {
+  string text = 1;
+}
+
+message ImageContentPart {
+  ImageUrl image_url = 1;
+}
+
+message ImageUrl {
+  string url = 1;
+  optional string detail = 2;
+}
+
+message InputAudioContentPart {
+  InputAudio input_audio = 1;
+}
+
+message InputAudio {
+  string data = 1;
+  string format = 2;
+}
+
+message FileContentPart {
+  FileData file = 1;
+}
+
+message FileData {
+  optional string filename = 1;
+  optional string file_data = 2;
+  optional string file_id = 3;
+}
+
+message ToolCall {
+  string id = 1;
+  string type = 2;
+  FunctionCall function = 3;
+}
+
+message FunctionCall {
+  string name = 1;
+  string arguments = 2;
+}
+
+message ToolDefinition {
+  string type = 1;
+  FunctionDefinition function = 2;
+}
+
+message FunctionDefinition {
+  string name = 1;
+  optional string description = 2;
+  optional google.protobuf.Struct parameters = 3;
+  optional bool strict = 4;
+}
+
+message ToolChoice {
+  oneof choice {
+    string mode = 1;
+    NamedToolChoice named = 2;
+  }
+}
+
+message NamedToolChoice {
+  string type = 1;
+  NamedToolChoiceFunction function = 2;
+}
+
+message NamedToolChoiceFunction {
+  string name = 1;
+}
+
+message ResponseFormat {
+  oneof format {
+    TextResponseFormat text = 1;
+    JsonObjectResponseFormat json_object = 2;
+    JsonSchemaResponseFormat json_schema = 3;
+  }
+}
+
+message TextResponseFormat {}
+
+message JsonObjectResponseFormat {}
+
+message JsonSchemaResponseFormat {
+  string name = 1;
+  optional string description = 2;
+  optional google.protobuf.Struct schema = 3;
+  optional bool strict = 4;
+}
+
+message AudioConfig {
+  string voice = 1;
+  AudioFormat format = 2;
+}
+
+message StreamOptions {
+  optional bool include_usage = 1;
+  optional bool include_obfuscation = 2;
+}
+
+message ChatCompletionRequest {
+  string model = 1;
+  repeated ChatCompletionMessage messages = 2;
+  optional double temperature = 3;
+  optional double top_p = 4;
+  optional int32 n = 5;
+
+  oneof stop_sequences {
+    string stop_string = 6;
+    StopArray stop_array = 7;
+  }
+
+  optional int32 max_tokens = 8;
+  optional double presence_penalty = 9;
+  optional double frequency_penalty = 10;
+  optional google.protobuf.Struct logit_bias = 11;
+  optional string user = 12;
+
+  repeated ToolDefinition tools = 13;
+  optional ToolChoice tool_choice = 14;
+  optional bool parallel_tool_calls = 15;
+  optional ResponseFormat response_format = 16;
+
+  optional int64 seed = 17;
+  optional bool logprobs = 18;
+  optional int32 top_logprobs = 19;
+  optional string service_tier = 20;
+  ReasoningEffort reasoning_effort = 21;
+  optional int32 max_completion_tokens = 22;
+  optional bool store = 23;
+  map<string, string> metadata = 24;
+  repeated string modalities = 25;
+  optional AudioConfig audio = 26;
+  optional google.protobuf.Struct prediction = 27;
+  optional google.protobuf.Struct web_search_options = 28;
+  optional StreamOptions stream_options = 29;
+}
+
+message StopArray {
+  repeated string values = 1;
+}
+
+message ChatCompletionResponse {
+  string id = 1;
+  string object = 2;
+  int64 created = 3;
+  string model = 4;
+  repeated ChatCompletionChoice choices = 5;
+  Usage usage = 6;
+  optional string system_fingerprint = 7;
+  optional string service_tier = 8;
+}
+
+message ChatCompletionChoice {
+  int32 index = 1;
+  ChatCompletionMessage message = 2;
+  FinishReason finish_reason = 3;
+  optional ChoiceLogprobs logprobs = 4;
+}
+
+message ChatCompletionStreamResponse {
+  string id = 1;
+  string object = 2;
+  int64 created = 3;
+  string model = 4;
+  repeated ChatCompletionStreamChoice choices = 5;
+  optional Usage usage = 6;
+  optional string system_fingerprint = 7;
+  optional string service_tier = 8;
+}
+
+message ChatCompletionStreamChoice {
+  int32 index = 1;
+  ChatCompletionMessageDelta delta = 2;
+  optional FinishReason finish_reason = 3;
+  optional ChoiceLogprobs logprobs = 4;
+}
+
+message ChatCompletionMessageDelta {
+  optional ChatRole role = 1;
+  optional string content = 2;
+  repeated ToolCallDelta tool_calls = 3;
+  optional string refusal = 4;
+}
+
+message ToolCallDelta {
+  int32 index = 1;
+  optional string id = 2;
+  optional string type = 3;
+  optional FunctionCallDelta function = 4;
+}
+
+message FunctionCallDelta {
+  optional string name = 1;
+  optional string arguments = 2;
+}
+
+message ChoiceLogprobs {
+  repeated TokenLogprob content = 1;
+  repeated TokenLogprob refusal = 2;
+}
+
+message TokenLogprob {
+  string token = 1;
+  double logprob = 2;
+  repeated int32 bytes = 3;
+  repeated TopLogprob top_logprobs = 4;
+}
+
+message TopLogprob {
+  string token = 1;
+  double logprob = 2;
+  repeated int32 bytes = 3;
+}
+
+message Usage {
+  int32 prompt_tokens = 1;
+  int32 completion_tokens = 2;
+  int32 total_tokens = 3;
+  optional PromptTokensDetails prompt_tokens_details = 4;
+  optional CompletionTokensDetails completion_tokens_details = 5;
+}
+
+message PromptTokensDetails {
+  int32 cached_tokens = 1;
+  int32 audio_tokens = 2;
+}
+
+message CompletionTokensDetails {
+  int32 reasoning_tokens = 1;
+  int32 audio_tokens = 2;
+  int32 accepted_prediction_tokens = 3;
+  int32 rejected_prediction_tokens = 4;
+}

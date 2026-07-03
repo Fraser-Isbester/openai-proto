@@ -1,0 +1,459 @@
+syntax = "proto3";
+
+package openai.responses.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/responses/v1;responsesv1";
+
+import "google/protobuf/struct.proto";
+import "openai/responses/v1/responses_messages.proto";
+
+// The server-sent event stream emitted by StreamResponse. Every variant
+// carries a sequence_number for ordering.
+message ResponseStreamEvent {
+  oneof event {
+    ResponseCreatedEvent created = 1;
+    ResponseInProgressEvent in_progress = 2;
+    ResponseCompletedEvent completed = 3;
+    ResponseFailedEvent failed = 4;
+    ResponseIncompleteEvent incomplete = 5;
+    ResponseQueuedEvent queued = 6;
+
+    ResponseOutputItemAddedEvent output_item_added = 7;
+    ResponseOutputItemDoneEvent output_item_done = 8;
+
+    ResponseContentPartAddedEvent content_part_added = 9;
+    ResponseContentPartDoneEvent content_part_done = 10;
+
+    ResponseOutputTextDeltaEvent output_text_delta = 11;
+    ResponseOutputTextDoneEvent output_text_done = 12;
+    ResponseOutputTextAnnotationAddedEvent output_text_annotation_added = 13;
+
+    ResponseRefusalDeltaEvent refusal_delta = 14;
+    ResponseRefusalDoneEvent refusal_done = 15;
+
+    ResponseFunctionCallArgumentsDeltaEvent function_call_arguments_delta = 16;
+    ResponseFunctionCallArgumentsDoneEvent function_call_arguments_done = 17;
+
+    ResponseReasoningTextDeltaEvent reasoning_text_delta = 18;
+    ResponseReasoningTextDoneEvent reasoning_text_done = 19;
+    ResponseReasoningSummaryPartAddedEvent reasoning_summary_part_added = 20;
+    ResponseReasoningSummaryPartDoneEvent reasoning_summary_part_done = 21;
+    ResponseReasoningSummaryTextDeltaEvent reasoning_summary_text_delta = 22;
+    ResponseReasoningSummaryTextDoneEvent reasoning_summary_text_done = 23;
+
+    ResponseWebSearchCallInProgressEvent web_search_call_in_progress = 24;
+    ResponseWebSearchCallSearchingEvent web_search_call_searching = 25;
+    ResponseWebSearchCallCompletedEvent web_search_call_completed = 26;
+
+    ResponseFileSearchCallInProgressEvent file_search_call_in_progress = 27;
+    ResponseFileSearchCallSearchingEvent file_search_call_searching = 28;
+    ResponseFileSearchCallCompletedEvent file_search_call_completed = 29;
+
+    ResponseAudioDeltaEvent audio_delta = 30;
+    ResponseAudioDoneEvent audio_done = 31;
+    ResponseAudioTranscriptDeltaEvent audio_transcript_delta = 32;
+    ResponseAudioTranscriptDoneEvent audio_transcript_done = 33;
+
+    ResponseCodeInterpreterCallCodeDeltaEvent code_interpreter_call_code_delta = 34;
+    ResponseCodeInterpreterCallCodeDoneEvent code_interpreter_call_code_done = 35;
+    ResponseCodeInterpreterCallInProgressEvent code_interpreter_call_in_progress = 36;
+    ResponseCodeInterpreterCallInterpretingEvent code_interpreter_call_interpreting = 37;
+    ResponseCodeInterpreterCallCompletedEvent code_interpreter_call_completed = 38;
+
+    ResponseImageGenCallInProgressEvent image_generation_call_in_progress = 39;
+    ResponseImageGenCallGeneratingEvent image_generation_call_generating = 40;
+    ResponseImageGenCallPartialImageEvent image_generation_call_partial_image = 41;
+    ResponseImageGenCallCompletedEvent image_generation_call_completed = 42;
+
+    ResponseMcpCallArgumentsDeltaEvent mcp_call_arguments_delta = 43;
+    ResponseMcpCallArgumentsDoneEvent mcp_call_arguments_done = 44;
+    ResponseMcpCallInProgressEvent mcp_call_in_progress = 45;
+    ResponseMcpCallCompletedEvent mcp_call_completed = 46;
+    ResponseMcpCallFailedEvent mcp_call_failed = 47;
+    ResponseMcpListToolsInProgressEvent mcp_list_tools_in_progress = 48;
+    ResponseMcpListToolsCompletedEvent mcp_list_tools_completed = 49;
+    ResponseMcpListToolsFailedEvent mcp_list_tools_failed = 50;
+
+    ResponseCustomToolCallInputDeltaEvent custom_tool_call_input_delta = 51;
+    ResponseCustomToolCallInputDoneEvent custom_tool_call_input_done = 52;
+
+    ResponseErrorEvent error = 53;
+  }
+}
+
+// --- Lifecycle events (carry the full Response snapshot) ---
+
+message ResponseCreatedEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+message ResponseInProgressEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+message ResponseCompletedEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+message ResponseFailedEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+message ResponseIncompleteEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+message ResponseQueuedEvent {
+  int32 sequence_number = 1;
+  Response response = 2;
+}
+
+// --- Output item lifecycle ---
+
+message ResponseOutputItemAddedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  OutputItem item = 3;
+}
+
+message ResponseOutputItemDoneEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  OutputItem item = 3;
+}
+
+// --- Content part lifecycle ---
+
+message ResponseContentPartAddedEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  OutputContent part = 5;
+}
+
+message ResponseContentPartDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  OutputContent part = 5;
+}
+
+// --- Output text ---
+
+message ResponseOutputTextDeltaEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string delta = 5;
+  repeated google.protobuf.Struct logprobs = 6;
+}
+
+message ResponseOutputTextDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string text = 5;
+  repeated google.protobuf.Struct logprobs = 6;
+}
+
+message ResponseOutputTextAnnotationAddedEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  int32 annotation_index = 5;
+  google.protobuf.Struct annotation = 6;
+}
+
+// --- Refusal ---
+
+message ResponseRefusalDeltaEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string delta = 5;
+}
+
+message ResponseRefusalDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string refusal = 5;
+}
+
+// --- Function call arguments ---
+
+message ResponseFunctionCallArgumentsDeltaEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  string delta = 4;
+}
+
+message ResponseFunctionCallArgumentsDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  string name = 4;
+  string arguments = 5;
+}
+
+// --- Reasoning ---
+
+message ResponseReasoningTextDeltaEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string delta = 5;
+}
+
+message ResponseReasoningTextDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 content_index = 4;
+  string text = 5;
+}
+
+message ResponseReasoningSummaryPartAddedEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 summary_index = 4;
+  google.protobuf.Struct part = 5;
+}
+
+message ResponseReasoningSummaryPartDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 summary_index = 4;
+  google.protobuf.Struct part = 5;
+}
+
+message ResponseReasoningSummaryTextDeltaEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 summary_index = 4;
+  string delta = 5;
+}
+
+message ResponseReasoningSummaryTextDoneEvent {
+  int32 sequence_number = 1;
+  string item_id = 2;
+  int32 output_index = 3;
+  int32 summary_index = 4;
+  string text = 5;
+}
+
+// --- Web search tool call ---
+
+message ResponseWebSearchCallInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseWebSearchCallSearchingEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseWebSearchCallCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+// --- File search tool call ---
+
+message ResponseFileSearchCallInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseFileSearchCallSearchingEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseFileSearchCallCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+// --- Audio ---
+
+message ResponseAudioDeltaEvent {
+  int32 sequence_number = 1;
+  string delta = 2;
+}
+
+message ResponseAudioDoneEvent {
+  int32 sequence_number = 1;
+}
+
+message ResponseAudioTranscriptDeltaEvent {
+  int32 sequence_number = 1;
+  string delta = 2;
+}
+
+message ResponseAudioTranscriptDoneEvent {
+  int32 sequence_number = 1;
+}
+
+// --- Code interpreter tool call ---
+
+message ResponseCodeInterpreterCallCodeDeltaEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string delta = 4;
+}
+
+message ResponseCodeInterpreterCallCodeDoneEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string code = 4;
+}
+
+message ResponseCodeInterpreterCallInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseCodeInterpreterCallInterpretingEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseCodeInterpreterCallCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+// --- Image generation tool call ---
+
+message ResponseImageGenCallInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseImageGenCallGeneratingEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseImageGenCallPartialImageEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  int32 partial_image_index = 4;
+  string partial_image_b64 = 5;
+}
+
+message ResponseImageGenCallCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+// --- MCP tool call ---
+
+message ResponseMcpCallArgumentsDeltaEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string delta = 4;
+}
+
+message ResponseMcpCallArgumentsDoneEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string arguments = 4;
+}
+
+message ResponseMcpCallInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseMcpCallCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseMcpCallFailedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseMcpListToolsInProgressEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseMcpListToolsCompletedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+message ResponseMcpListToolsFailedEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+}
+
+// --- Custom tool call ---
+
+message ResponseCustomToolCallInputDeltaEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string delta = 4;
+}
+
+message ResponseCustomToolCallInputDoneEvent {
+  int32 sequence_number = 1;
+  int32 output_index = 2;
+  string item_id = 3;
+  string input = 4;
+}
+
+// --- Error ---
+
+message ResponseErrorEvent {
+  int32 sequence_number = 1;
+  string code = 2;
+  string message = 3;
+  optional string param = 4;
+}

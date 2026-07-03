@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package openai.embeddings.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/embeddings/v1;embeddingsv1";
+
+enum EncodingFormat {
+  ENCODING_FORMAT_UNSPECIFIED = 0;
+  ENCODING_FORMAT_FLOAT = 1;
+  ENCODING_FORMAT_BASE64 = 2;
+}
+
+message CreateEmbeddingRequest {
+  string model = 1;
+
+  oneof input {
+    string string_input = 2;
+    StringArray string_array = 3;
+    TokenArray token_array = 4;
+    TokenArrayList token_array_list = 5;
+  }
+
+  optional EncodingFormat encoding_format = 6;
+  optional int32 dimensions = 7;
+  optional string user = 8;
+}
+
+message StringArray {
+  repeated string values = 1;
+}
+
+message TokenArray {
+  repeated int32 values = 1;
+}
+
+message TokenArrayList {
+  repeated TokenArray arrays = 1;
+}
+
+message CreateEmbeddingResponse {
+  string object = 1;
+  repeated EmbeddingData data = 2;
+  string model = 3;
+  Usage usage = 4;
+}
+
+message EmbeddingData {
+  int32 index = 1;
+  string object = 2;
+
+  oneof embedding {
+    FloatVector float_vector = 3;
+    string base64_embedding = 4;
+  }
+}
+
+message FloatVector {
+  repeated float values = 1;
+}
+
+message Usage {
+  int32 prompt_tokens = 1;
+  int32 total_tokens = 2;
+}

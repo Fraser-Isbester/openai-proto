@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package openai.moderations.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/moderations/v1;moderationsv1";
+
+message CreateModerationRequest {
+  oneof input {
+    string string_input = 1;
+    StringArray string_array = 2;
+    ContentPartArray content_part_array = 3;
+  }
+
+  optional string model = 4;
+}
+
+message StringArray {
+  repeated string values = 1;
+}
+
+message ContentPartArray {
+  repeated ModerationContentPart parts = 1;
+}
+
+message ModerationContentPart {
+  oneof content {
+    ModerationTextContentPart text = 1;
+    ModerationImageContentPart image_url = 2;
+  }
+}
+
+message ModerationTextContentPart {
+  string text = 1;
+}
+
+message ModerationImageContentPart {
+  ImageUrl image_url = 1;
+}
+
+message ImageUrl {
+  string url = 1;
+}
+
+message CreateModerationResponse {
+  string id = 1;
+  string model = 2;
+  repeated ModerationResult results = 3;
+}
+
+message ModerationResult {
+  bool flagged = 1;
+  ModerationCategories categories = 2;
+  ModerationCategoryScores category_scores = 3;
+  ModerationCategoryAppliedInputTypes category_applied_input_types = 4;
+}
+
+message ModerationCategories {
+  bool hate = 1;
+  bool hate_threatening = 2;
+  bool harassment = 3;
+  bool harassment_threatening = 4;
+  bool self_harm = 5;
+  bool self_harm_intent = 6;
+  bool self_harm_instructions = 7;
+  bool sexual = 8;
+  bool sexual_minors = 9;
+  bool violence = 10;
+  bool violence_graphic = 11;
+  bool illicit = 12;
+  bool illicit_violent = 13;
+}
+
+message ModerationCategoryScores {
+  double hate = 1;
+  double hate_threatening = 2;
+  double harassment = 3;
+  double harassment_threatening = 4;
+  double self_harm = 5;
+  double self_harm_intent = 6;
+  double self_harm_instructions = 7;
+  double sexual = 8;
+  double sexual_minors = 9;
+  double violence = 10;
+  double violence_graphic = 11;
+  double illicit = 12;
+  double illicit_violent = 13;
+}
+
+message ModerationCategoryAppliedInputTypes {
+  repeated string hate = 1;
+  repeated string hate_threatening = 2;
+  repeated string harassment = 3;
+  repeated string harassment_threatening = 4;
+  repeated string self_harm = 5;
+  repeated string self_harm_intent = 6;
+  repeated string self_harm_instructions = 7;
+  repeated string sexual = 8;
+  repeated string sexual_minors = 9;
+  repeated string violence = 10;
+  repeated string violence_graphic = 11;
+  repeated string illicit = 12;
+  repeated string illicit_violent = 13;
+}

@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package openai.images.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/images/v1;imagesv1";
+
+enum ImageQuality {
+  IMAGE_QUALITY_UNSPECIFIED = 0;
+  IMAGE_QUALITY_AUTO = 1;
+  IMAGE_QUALITY_HIGH = 2;
+  IMAGE_QUALITY_MEDIUM = 3;
+  IMAGE_QUALITY_LOW = 4;
+  IMAGE_QUALITY_HD = 5;
+  IMAGE_QUALITY_STANDARD = 6;
+}
+
+enum ImageSize {
+  IMAGE_SIZE_UNSPECIFIED = 0;
+  IMAGE_SIZE_AUTO = 1;
+  IMAGE_SIZE_256X256 = 2;
+  IMAGE_SIZE_512X512 = 3;
+  IMAGE_SIZE_1024X1024 = 4;
+  IMAGE_SIZE_1536X1024 = 5;
+  IMAGE_SIZE_1024X1536 = 6;
+  IMAGE_SIZE_1792X1024 = 7;
+  IMAGE_SIZE_1024X1792 = 8;
+}
+
+enum ImageStyle {
+  IMAGE_STYLE_UNSPECIFIED = 0;
+  IMAGE_STYLE_VIVID = 1;
+  IMAGE_STYLE_NATURAL = 2;
+}
+
+enum ImageResponseFormat {
+  IMAGE_RESPONSE_FORMAT_UNSPECIFIED = 0;
+  IMAGE_RESPONSE_FORMAT_URL = 1;
+  IMAGE_RESPONSE_FORMAT_B64_JSON = 2;
+}
+
+enum ImageBackground {
+  IMAGE_BACKGROUND_UNSPECIFIED = 0;
+  IMAGE_BACKGROUND_AUTO = 1;
+  IMAGE_BACKGROUND_TRANSPARENT = 2;
+  IMAGE_BACKGROUND_OPAQUE = 3;
+}
+
+enum ImageOutputFormat {
+  IMAGE_OUTPUT_FORMAT_UNSPECIFIED = 0;
+  IMAGE_OUTPUT_FORMAT_PNG = 1;
+  IMAGE_OUTPUT_FORMAT_JPEG = 2;
+  IMAGE_OUTPUT_FORMAT_WEBP = 3;
+}
+
+enum ImageModeration {
+  IMAGE_MODERATION_UNSPECIFIED = 0;
+  IMAGE_MODERATION_AUTO = 1;
+  IMAGE_MODERATION_LOW = 2;
+}
+
+// A single generated image. Only one of url / b64_json is populated depending
+// on the model and requested response_format (gpt-image-1 always returns
+// b64_json). revised_prompt is populated by dall-e-3.
+message ImageData {
+  optional string url = 1;
+  optional string b64_json = 2;
+  optional string revised_prompt = 3;
+}
+
+// Token-based usage, returned by gpt-image-1. Older dall-e models omit this.
+message ImagesUsage {
+  int32 total_tokens = 1;
+  int32 input_tokens = 2;
+  int32 output_tokens = 3;
+  ImageTokensDetails input_tokens_details = 4;
+}
+
+message ImageTokensDetails {
+  int32 text_tokens = 1;
+  int32 image_tokens = 2;
+}
+
+message GenerateImageRequest {
+  string prompt = 1;
+  optional string model = 2;
+  optional int32 n = 3;
+  optional ImageQuality quality = 4;
+  optional ImageResponseFormat response_format = 5;
+  optional ImageSize size = 6;
+  optional ImageStyle style = 7;
+  optional string user = 8;
+  optional ImageBackground background = 9;
+  optional ImageOutputFormat output_format = 10;
+  optional int32 output_compression = 11;
+  optional ImageModeration moderation = 12;
+}
+
+message GenerateImageResponse {
+  int64 created = 1;
+  repeated ImageData data = 2;
+  optional ImagesUsage usage = 3;
+}
+
+message EditImageRequest {
+  // gpt-image-1 accepts multiple input images; dall-e-2 accepts exactly one.
+  repeated bytes image = 1;
+  repeated string image_filenames = 2;
+  optional bytes mask = 3;
+  optional string mask_filename = 4;
+  string prompt = 5;
+  optional string model = 6;
+  optional int32 n = 7;
+  optional ImageSize size = 8;
+  optional ImageResponseFormat response_format = 9;
+  optional string user = 10;
+  optional ImageQuality quality = 11;
+  optional ImageBackground background = 12;
+  optional ImageOutputFormat output_format = 13;
+  optional int32 output_compression = 14;
+}
+
+message EditImageResponse {
+  int64 created = 1;
+  repeated ImageData data = 2;
+  optional ImagesUsage usage = 3;
+}
+
+message CreateImageVariationRequest {
+  bytes image = 1;
+  optional string image_filename = 2;
+  optional string model = 3;
+  optional int32 n = 4;
+  optional ImageResponseFormat response_format = 5;
+  optional ImageSize size = 6;
+  optional string user = 7;
+}
+
+message CreateImageVariationResponse {
+  int64 created = 1;
+  repeated ImageData data = 2;
+  optional ImagesUsage usage = 3;
+}

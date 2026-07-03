@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package openai.moderations.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/moderations/v1;moderationsv1";
+
+import "openai/moderations/v1/moderations_messages.proto";
+
+service ModerationsService {
+  // Classifies if text and/or image inputs are potentially harmful.
+  rpc CreateModeration (CreateModerationRequest) returns (CreateModerationResponse);
+}

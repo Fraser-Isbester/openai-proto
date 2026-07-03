@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package openai.images.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/images/v1;imagesv1";
+
+import "openai/images/v1/images.proto";
+
+service ImagesService {
+  // POST /v1/images/generations
+  rpc GenerateImage (GenerateImageRequest) returns (GenerateImageResponse);
+
+  // POST /v1/images/edits
+  rpc EditImage (EditImageRequest) returns (EditImageResponse);
+
+  // POST /v1/images/variations
+  rpc CreateImageVariation (CreateImageVariationRequest) returns (CreateImageVariationResponse);
+}

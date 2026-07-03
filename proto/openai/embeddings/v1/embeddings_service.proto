@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package openai.embeddings.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/embeddings/v1;embeddingsv1";
+
+import "openai/embeddings/v1/embeddings_messages.proto";
+
+service EmbeddingsService {
+  // Creates an embedding vector representing the input text.
+  rpc CreateEmbedding (CreateEmbeddingRequest) returns (CreateEmbeddingResponse);
+}

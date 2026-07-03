@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package openai.realtime.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/realtime/v1;realtimev1";
+
+import "google/protobuf/struct.proto";
+
+// Session configuration for a Realtime connection. Nested config shapes
+// (transcription, turn detection, tool definitions) are modeled as Struct
+// here rather than fully typed; the top-level event catalog and Item /
+// ContentPart shapes are fully typed as those carry the core contract value.
+message Session {
+  optional string id = 1;
+  repeated string modalities = 2;
+  optional string instructions = 3;
+  optional string voice = 4;
+  optional string input_audio_format = 5;
+  optional string output_audio_format = 6;
+  optional google.protobuf.Struct input_audio_transcription = 7;
+  optional google.protobuf.Struct turn_detection = 8;
+  repeated google.protobuf.Struct tools = 9;
+  optional string tool_choice = 10;
+  optional double temperature = 11;
+  optional int32 max_response_output_tokens = 12;
+}
+
+message Conversation {
+  string id = 1;
+  string object = 2;
+}
+
+// A single item in the conversation. `type` discriminates message /
+// function_call / function_call_output; role/content apply to messages while
+// call_id/name/arguments/output apply to the function-call variants.
+message Item {
+  string id = 1;
+  string type = 2;
+  optional string status = 3;
+  optional string role = 4;
+  repeated ContentPart content = 5;
+  optional string call_id = 6;
+  optional string name = 7;
+  optional string arguments = 8;
+  optional string output = 9;
+}
+
+// A single content part of a message item. Binary audio is carried as `bytes`;
+// the base64 string on the JSON wire is a REST artifact this contract avoids.
+message ContentPart {
+  oneof content {
+    InputTextContent input_text = 1;
+    InputAudioContent input_audio = 2;
+    InputImageContent input_image = 3;
+    TextContent text = 4;
+    AudioContent audio = 5;
+  }
+}
+
+message InputTextContent {
+  string text = 1;
+}
+
+message InputAudioContent {
+  bytes audio = 1;
+  optional string transcript = 2;
+}
+
+message InputImageContent {
+  string image_url = 1;
+  optional string detail = 2;
+}
+
+message TextContent {
+  string text = 1;
+}
+
+message AudioContent {
+  bytes audio = 1;
+  optional string transcript = 2;
+}
+
+// A model response, carried by response.created and response.done server events.
+message Response {
+  string id = 1;
+  string object = 2;
+  optional string status = 3;
+  optional google.protobuf.Struct status_details = 4;
+  repeated Item output = 5;
+  optional string conversation_id = 6;
+  repeated string output_modalities = 7;
+  optional google.protobuf.Struct usage = 8;
+  optional google.protobuf.Struct metadata = 9;
+}
+
+// Per-response inference overrides for a response.create client event.
+message ResponseCreateParams {
+  repeated string modalities = 1;
+  optional string instructions = 2;
+  optional string voice = 3;
+  optional string output_audio_format = 4;
+  repeated google.protobuf.Struct tools = 5;
+  optional string tool_choice = 6;
+  optional double temperature = 7;
+  optional int32 max_output_tokens = 8;
+  optional string conversation = 9;
+  repeated Item input = 10;
+  optional google.protobuf.Struct metadata = 11;
+}
+
+message RateLimit {
+  string name = 1;
+  int32 limit = 2;
+  int32 remaining = 3;
+  double reset_seconds = 4;
+}
+
+message RealtimeError {
+  string type = 1;
+  optional string code = 2;
+  string message = 3;
+  optional string param = 4;
+  optional string event_id = 5;
+}

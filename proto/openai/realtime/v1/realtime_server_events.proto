@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+package openai.realtime.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/realtime/v1;realtimev1";
+
+import "openai/realtime/v1/realtime_messages.proto";
+
+// ServerEvent is the envelope for every server->client event on the Connect
+// bidi stream. Each variant carries a server-assigned event_id.
+message ServerEvent {
+  oneof event {
+    ErrorEvent error = 1;
+    SessionCreated session_created = 2;
+    SessionUpdated session_updated = 3;
+    ConversationCreated conversation_created = 4;
+    ConversationItemCreated conversation_item_created = 5;
+    ConversationItemInputAudioTranscriptionCompleted conversation_item_input_audio_transcription_completed = 6;
+    ConversationItemInputAudioTranscriptionFailed conversation_item_input_audio_transcription_failed = 7;
+    ConversationItemTruncated conversation_item_truncated = 8;
+    ConversationItemDeleted conversation_item_deleted = 9;
+    InputAudioBufferCommitted input_audio_buffer_committed = 10;
+    InputAudioBufferCleared input_audio_buffer_cleared = 11;
+    InputAudioBufferSpeechStarted input_audio_buffer_speech_started = 12;
+    InputAudioBufferSpeechStopped input_audio_buffer_speech_stopped = 13;
+    ResponseCreated response_created = 14;
+    ResponseDone response_done = 15;
+    ResponseOutputItemAdded response_output_item_added = 16;
+    ResponseOutputItemDone response_output_item_done = 17;
+    ResponseContentPartAdded response_content_part_added = 18;
+    ResponseContentPartDone response_content_part_done = 19;
+    ResponseTextDelta response_text_delta = 20;
+    ResponseTextDone response_text_done = 21;
+    ResponseAudioTranscriptDelta response_audio_transcript_delta = 22;
+    ResponseAudioTranscriptDone response_audio_transcript_done = 23;
+    ResponseAudioDelta response_audio_delta = 24;
+    ResponseAudioDone response_audio_done = 25;
+    ResponseFunctionCallArgumentsDelta response_function_call_arguments_delta = 26;
+    ResponseFunctionCallArgumentsDone response_function_call_arguments_done = 27;
+    RateLimitsUpdated rate_limits_updated = 28;
+  }
+}
+
+// error
+message ErrorEvent {
+  string event_id = 1;
+  RealtimeError error = 2;
+}
+
+// session.created
+message SessionCreated {
+  string event_id = 1;
+  Session session = 2;
+}
+
+// session.updated
+message SessionUpdated {
+  string event_id = 1;
+  Session session = 2;
+}
+
+// conversation.created
+message ConversationCreated {
+  string event_id = 1;
+  Conversation conversation = 2;
+}
+
+// conversation.item.created
+message ConversationItemCreated {
+  string event_id = 1;
+  optional string previous_item_id = 2;
+  Item item = 3;
+}
+
+// conversation.item.input_audio_transcription.completed
+message ConversationItemInputAudioTranscriptionCompleted {
+  string event_id = 1;
+  string item_id = 2;
+  int32 content_index = 3;
+  string transcript = 4;
+}
+
+// conversation.item.input_audio_transcription.failed
+message ConversationItemInputAudioTranscriptionFailed {
+  string event_id = 1;
+  string item_id = 2;
+  int32 content_index = 3;
+  RealtimeError error = 4;
+}
+
+// conversation.item.truncated
+message ConversationItemTruncated {
+  string event_id = 1;
+  string item_id = 2;
+  int32 content_index = 3;
+  int32 audio_end_ms = 4;
+}
+
+// conversation.item.deleted
+message ConversationItemDeleted {
+  string event_id = 1;
+  string item_id = 2;
+}
+
+// input_audio_buffer.committed
+message InputAudioBufferCommitted {
+  string event_id = 1;
+  optional string previous_item_id = 2;
+  string item_id = 3;
+}
+
+// input_audio_buffer.cleared
+message InputAudioBufferCleared {
+  string event_id = 1;
+}
+
+// input_audio_buffer.speech_started
+message InputAudioBufferSpeechStarted {
+  string event_id = 1;
+  int32 audio_start_ms = 2;
+  string item_id = 3;
+}
+
+// input_audio_buffer.speech_stopped
+message InputAudioBufferSpeechStopped {
+  string event_id = 1;
+  int32 audio_end_ms = 2;
+  string item_id = 3;
+}
+
+// response.created
+message ResponseCreated {
+  string event_id = 1;
+  Response response = 2;
+}
+
+// response.done
+message ResponseDone {
+  string event_id = 1;
+  Response response = 2;
+}
+
+// response.output_item.added
+message ResponseOutputItemAdded {
+  string event_id = 1;
+  string response_id = 2;
+  int32 output_index = 3;
+  Item item = 4;
+}
+
+// response.output_item.done
+message ResponseOutputItemDone {
+  string event_id = 1;
+  string response_id = 2;
+  int32 output_index = 3;
+  Item item = 4;
+}
+
+// response.content_part.added
+message ResponseContentPartAdded {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  ContentPart part = 6;
+}
+
+// response.content_part.done
+message ResponseContentPartDone {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  ContentPart part = 6;
+}
+
+// response.text.delta (GA: response.output_text.delta)
+message ResponseTextDelta {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  string delta = 6;
+}
+
+// response.text.done (GA: response.output_text.done)
+message ResponseTextDone {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  string text = 6;
+}
+
+// response.audio_transcript.delta (GA: response.output_audio_transcript.delta)
+message ResponseAudioTranscriptDelta {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  string delta = 6;
+}
+
+// response.audio_transcript.done (GA: response.output_audio_transcript.done)
+message ResponseAudioTranscriptDone {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  string transcript = 6;
+}
+
+// response.audio.delta (GA: response.output_audio.delta) — audio as bytes.
+message ResponseAudioDelta {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+  bytes delta = 6;
+}
+
+// response.audio.done (GA: response.output_audio.done)
+message ResponseAudioDone {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  int32 content_index = 5;
+}
+
+// response.function_call_arguments.delta
+message ResponseFunctionCallArgumentsDelta {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  string call_id = 5;
+  string delta = 6;
+}
+
+// response.function_call_arguments.done
+message ResponseFunctionCallArgumentsDone {
+  string event_id = 1;
+  string response_id = 2;
+  string item_id = 3;
+  int32 output_index = 4;
+  string call_id = 5;
+  string name = 6;
+  string arguments = 7;
+}
+
+// rate_limits.updated
+message RateLimitsUpdated {
+  string event_id = 1;
+  repeated RateLimit rate_limits = 2;
+}

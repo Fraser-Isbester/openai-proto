@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package openai.realtime.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/realtime/v1;realtimev1";
+
+import "openai/realtime/v1/realtime_messages.proto";
+
+// ClientEvent is the envelope for every client->server event on the Connect
+// bidi stream. Each variant carries an optional client-assigned event_id used
+// to correlate the event with any resulting error.
+message ClientEvent {
+  oneof event {
+    SessionUpdate session_update = 1;
+    InputAudioBufferAppend input_audio_buffer_append = 2;
+    InputAudioBufferCommit input_audio_buffer_commit = 3;
+    InputAudioBufferClear input_audio_buffer_clear = 4;
+    ConversationItemCreate conversation_item_create = 5;
+    ConversationItemTruncate conversation_item_truncate = 6;
+    ConversationItemDelete conversation_item_delete = 7;
+    ResponseCreate response_create = 8;
+    ResponseCancel response_cancel = 9;
+  }
+}
+
+// session.update
+message SessionUpdate {
+  optional string event_id = 1;
+  Session session = 2;
+}
+
+// input_audio_buffer.append — audio carried as bytes, not base64 string.
+message InputAudioBufferAppend {
+  optional string event_id = 1;
+  bytes audio = 2;
+}
+
+// input_audio_buffer.commit
+message InputAudioBufferCommit {
+  optional string event_id = 1;
+}
+
+// input_audio_buffer.clear
+message InputAudioBufferClear {
+  optional string event_id = 1;
+}
+
+// conversation.item.create
+message ConversationItemCreate {
+  optional string event_id = 1;
+  optional string previous_item_id = 2;
+  Item item = 3;
+}
+
+// conversation.item.truncate
+message ConversationItemTruncate {
+  optional string event_id = 1;
+  string item_id = 2;
+  int32 content_index = 3;
+  int32 audio_end_ms = 4;
+}
+
+// conversation.item.delete
+message ConversationItemDelete {
+  optional string event_id = 1;
+  string item_id = 2;
+}
+
+// response.create
+message ResponseCreate {
+  optional string event_id = 1;
+  optional ResponseCreateParams response = 2;
+}
+
+// response.cancel
+message ResponseCancel {
+  optional string event_id = 1;
+  optional string response_id = 2;
+}

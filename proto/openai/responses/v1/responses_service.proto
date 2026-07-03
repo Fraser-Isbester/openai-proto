@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package openai.responses.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/responses/v1;responsesv1";
+
+import "openai/responses/v1/responses_messages.proto";
+import "openai/responses/v1/responses_events.proto";
+
+service ResponsesService {
+  // POST /v1/responses — unary generation.
+  rpc CreateResponse (CreateResponseRequest) returns (CreateResponseResponse);
+
+  // POST /v1/responses (stream: true) — server-streaming SSE interface.
+  rpc StreamResponse (StreamResponseRequest) returns (stream StreamResponseResponse);
+
+  // GET /v1/responses/{response_id}
+  rpc GetResponse (GetResponseRequest) returns (GetResponseResponse);
+
+  // DELETE /v1/responses/{response_id}
+  rpc DeleteResponse (DeleteResponseRequest) returns (DeleteResponseResponse);
+
+  // POST /v1/responses/{response_id}/cancel — cancel a background response.
+  rpc CancelResponse (CancelResponseRequest) returns (CancelResponseResponse);
+
+  // GET /v1/responses/{response_id}/input_items — paginated.
+  rpc ListInputItems (ListInputItemsRequest) returns (ListInputItemsResponse);
+}
+
+// Envelope streamed by StreamResponse; wraps the ResponseStreamEvent oneof so
+// the streamed message satisfies the <Method>Response lint rule.
+message StreamResponseResponse {
+  ResponseStreamEvent event = 1;
+}

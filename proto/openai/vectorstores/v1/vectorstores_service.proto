@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package openai.vectorstores.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/vectorstores/v1;vectorstoresv1";
+
+import "openai/vectorstores/v1/vectorstores_messages.proto";
+
+service VectorStoreService {
+  // POST /v1/vector_stores
+  rpc CreateVectorStore (CreateVectorStoreRequest) returns (CreateVectorStoreResponse);
+
+  // GET /v1/vector_stores
+  rpc ListVectorStores (ListVectorStoresRequest) returns (ListVectorStoresResponse);
+
+  // GET /v1/vector_stores/{vector_store_id}
+  rpc RetrieveVectorStore (RetrieveVectorStoreRequest) returns (RetrieveVectorStoreResponse);
+
+  // POST /v1/vector_stores/{vector_store_id}
+  rpc UpdateVectorStore (UpdateVectorStoreRequest) returns (UpdateVectorStoreResponse);
+
+  // DELETE /v1/vector_stores/{vector_store_id}
+  rpc DeleteVectorStore (DeleteVectorStoreRequest) returns (DeleteVectorStoreResponse);
+
+  // POST /v1/vector_stores/{vector_store_id}/files
+  rpc CreateVectorStoreFile (CreateVectorStoreFileRequest) returns (CreateVectorStoreFileResponse);
+
+  // GET /v1/vector_stores/{vector_store_id}/files
+  rpc ListVectorStoreFiles (ListVectorStoreFilesRequest) returns (ListVectorStoreFilesResponse);
+
+  // GET /v1/vector_stores/{vector_store_id}/files/{file_id}
+  rpc RetrieveVectorStoreFile (RetrieveVectorStoreFileRequest) returns (RetrieveVectorStoreFileResponse);
+
+  // DELETE /v1/vector_stores/{vector_store_id}/files/{file_id}
+  rpc DeleteVectorStoreFile (DeleteVectorStoreFileRequest) returns (DeleteVectorStoreFileResponse);
+
+  // POST /v1/vector_stores/{vector_store_id}/file_batches
+  rpc CreateVectorStoreFileBatch (CreateVectorStoreFileBatchRequest) returns (CreateVectorStoreFileBatchResponse);
+
+  // GET /v1/vector_stores/{vector_store_id}/file_batches/{batch_id}
+  rpc RetrieveVectorStoreFileBatch (RetrieveVectorStoreFileBatchRequest) returns (RetrieveVectorStoreFileBatchResponse);
+
+  // POST /v1/vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel
+  rpc CancelVectorStoreFileBatch (CancelVectorStoreFileBatchRequest) returns (CancelVectorStoreFileBatchResponse);
+
+  // GET /v1/vector_stores/{vector_store_id}/file_batches/{batch_id}/files
+  rpc ListVectorStoreFileBatchFiles (ListVectorStoreFileBatchFilesRequest) returns (ListVectorStoreFileBatchFilesResponse);
+}

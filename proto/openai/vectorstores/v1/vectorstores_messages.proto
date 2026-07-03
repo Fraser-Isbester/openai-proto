@@ -1,0 +1,247 @@
+syntax = "proto3";
+
+package openai.vectorstores.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/vectorstores/v1;vectorstoresv1";
+
+enum VectorStoreStatus {
+  VECTOR_STORE_STATUS_UNSPECIFIED = 0;
+  VECTOR_STORE_STATUS_EXPIRED = 1;
+  VECTOR_STORE_STATUS_IN_PROGRESS = 2;
+  VECTOR_STORE_STATUS_COMPLETED = 3;
+}
+
+enum VectorStoreFileStatus {
+  VECTOR_STORE_FILE_STATUS_UNSPECIFIED = 0;
+  VECTOR_STORE_FILE_STATUS_IN_PROGRESS = 1;
+  VECTOR_STORE_FILE_STATUS_COMPLETED = 2;
+  VECTOR_STORE_FILE_STATUS_CANCELLED = 3;
+  VECTOR_STORE_FILE_STATUS_FAILED = 4;
+}
+
+enum VectorStoreFileBatchStatus {
+  VECTOR_STORE_FILE_BATCH_STATUS_UNSPECIFIED = 0;
+  VECTOR_STORE_FILE_BATCH_STATUS_IN_PROGRESS = 1;
+  VECTOR_STORE_FILE_BATCH_STATUS_COMPLETED = 2;
+  VECTOR_STORE_FILE_BATCH_STATUS_CANCELLED = 3;
+  VECTOR_STORE_FILE_BATCH_STATUS_FAILED = 4;
+}
+
+enum VectorStoreFileErrorCode {
+  VECTOR_STORE_FILE_ERROR_CODE_UNSPECIFIED = 0;
+  VECTOR_STORE_FILE_ERROR_CODE_SERVER_ERROR = 1;
+  VECTOR_STORE_FILE_ERROR_CODE_UNSUPPORTED_FILE = 2;
+  VECTOR_STORE_FILE_ERROR_CODE_INVALID_FILE = 3;
+}
+
+message ExpiresAfter {
+  string anchor = 1;
+  int32 days = 2;
+}
+
+message AutoChunkingStrategy {}
+
+message StaticChunkingStrategy {
+  int32 max_chunk_size_tokens = 1;
+  int32 chunk_overlap_tokens = 2;
+}
+
+message ChunkingStrategy {
+  oneof strategy {
+    AutoChunkingStrategy auto = 1;
+    StaticChunkingStrategy static = 2;
+  }
+}
+
+message FileCounts {
+  int32 in_progress = 1;
+  int32 completed = 2;
+  int32 failed = 3;
+  int32 cancelled = 4;
+  int32 total = 5;
+}
+
+message VectorStore {
+  string id = 1;
+  string object = 2;
+  int64 created_at = 3;
+  optional string name = 4;
+  int64 usage_bytes = 5;
+  FileCounts file_counts = 6;
+  VectorStoreStatus status = 7;
+  optional ExpiresAfter expires_after = 8;
+  optional int64 expires_at = 9;
+  optional int64 last_active_at = 10;
+  map<string, string> metadata = 11;
+}
+
+message VectorStoreFileError {
+  VectorStoreFileErrorCode code = 1;
+  string message = 2;
+}
+
+message VectorStoreFile {
+  string id = 1;
+  string object = 2;
+  int64 usage_bytes = 3;
+  int64 created_at = 4;
+  string vector_store_id = 5;
+  VectorStoreFileStatus status = 6;
+  optional VectorStoreFileError last_error = 7;
+  ChunkingStrategy chunking_strategy = 8;
+}
+
+message VectorStoreFileBatch {
+  string id = 1;
+  string object = 2;
+  int64 created_at = 3;
+  string vector_store_id = 4;
+  VectorStoreFileBatchStatus status = 5;
+  FileCounts file_counts = 6;
+}
+
+message CreateVectorStoreRequest {
+  optional string name = 1;
+  repeated string file_ids = 2;
+  optional ExpiresAfter expires_after = 3;
+  optional ChunkingStrategy chunking_strategy = 4;
+  map<string, string> metadata = 5;
+}
+
+message CreateVectorStoreResponse {
+  VectorStore vector_store = 1;
+}
+
+message ListVectorStoresRequest {
+  optional string after = 1;
+  optional string before = 2;
+  optional int32 limit = 3;
+  optional string order = 4;
+}
+
+message ListVectorStoresResponse {
+  repeated VectorStore data = 1;
+  bool has_more = 2;
+  optional string first_id = 3;
+  optional string last_id = 4;
+}
+
+message RetrieveVectorStoreRequest {
+  string vector_store_id = 1;
+}
+
+message RetrieveVectorStoreResponse {
+  VectorStore vector_store = 1;
+}
+
+message UpdateVectorStoreRequest {
+  string vector_store_id = 1;
+  optional string name = 2;
+  optional ExpiresAfter expires_after = 3;
+  map<string, string> metadata = 4;
+}
+
+message UpdateVectorStoreResponse {
+  VectorStore vector_store = 1;
+}
+
+message DeleteVectorStoreRequest {
+  string vector_store_id = 1;
+}
+
+message DeleteVectorStoreResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}
+
+message CreateVectorStoreFileRequest {
+  string vector_store_id = 1;
+  string file_id = 2;
+  optional ChunkingStrategy chunking_strategy = 3;
+}
+
+message CreateVectorStoreFileResponse {
+  VectorStoreFile vector_store_file = 1;
+}
+
+message ListVectorStoreFilesRequest {
+  string vector_store_id = 1;
+  optional string after = 2;
+  optional string before = 3;
+  optional int32 limit = 4;
+  optional string order = 5;
+  optional string filter = 6;
+}
+
+message ListVectorStoreFilesResponse {
+  repeated VectorStoreFile data = 1;
+  bool has_more = 2;
+  optional string first_id = 3;
+  optional string last_id = 4;
+}
+
+message RetrieveVectorStoreFileRequest {
+  string vector_store_id = 1;
+  string file_id = 2;
+}
+
+message RetrieveVectorStoreFileResponse {
+  VectorStoreFile vector_store_file = 1;
+}
+
+message DeleteVectorStoreFileRequest {
+  string vector_store_id = 1;
+  string file_id = 2;
+}
+
+message DeleteVectorStoreFileResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}
+
+message CreateVectorStoreFileBatchRequest {
+  string vector_store_id = 1;
+  repeated string file_ids = 2;
+  optional ChunkingStrategy chunking_strategy = 3;
+}
+
+message CreateVectorStoreFileBatchResponse {
+  VectorStoreFileBatch vector_store_file_batch = 1;
+}
+
+message RetrieveVectorStoreFileBatchRequest {
+  string vector_store_id = 1;
+  string batch_id = 2;
+}
+
+message RetrieveVectorStoreFileBatchResponse {
+  VectorStoreFileBatch vector_store_file_batch = 1;
+}
+
+message CancelVectorStoreFileBatchRequest {
+  string vector_store_id = 1;
+  string batch_id = 2;
+}
+
+message CancelVectorStoreFileBatchResponse {
+  VectorStoreFileBatch vector_store_file_batch = 1;
+}
+
+message ListVectorStoreFileBatchFilesRequest {
+  string vector_store_id = 1;
+  string batch_id = 2;
+  optional string after = 3;
+  optional string before = 4;
+  optional int32 limit = 5;
+  optional string order = 6;
+  optional string filter = 7;
+}
+
+message ListVectorStoreFileBatchFilesResponse {
+  repeated VectorStoreFile data = 1;
+  bool has_more = 2;
+  optional string first_id = 3;
+  optional string last_id = 4;
+}

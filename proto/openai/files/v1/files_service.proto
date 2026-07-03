@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package openai.files.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/files/v1;filesv1";
+
+import "openai/files/v1/files_messages.proto";
+
+service FilesService {
+  // POST /v1/files — uploads a file.
+  rpc UploadFile (UploadFileRequest) returns (UploadFileResponse);
+
+  // GET /v1/files — lists files, optionally filtered by purpose.
+  rpc ListFiles (ListFilesRequest) returns (ListFilesResponse);
+
+  // GET /v1/files/{file_id} — retrieves metadata for a single file.
+  rpc RetrieveFile (RetrieveFileRequest) returns (RetrieveFileResponse);
+
+  // DELETE /v1/files/{file_id} — deletes a file.
+  rpc DeleteFile (DeleteFileRequest) returns (DeleteFileResponse);
+
+  // GET /v1/files/{file_id}/content — streams the raw file contents.
+  rpc RetrieveFileContent (RetrieveFileContentRequest) returns (stream RetrieveFileContentResponse);
+}

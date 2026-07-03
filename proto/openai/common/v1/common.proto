@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package openai.common.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/common/v1;commonv1";
+
+// Mirrors the shape of an OpenAI API error object. Not used directly as an
+// RPC response type (gRPC status conveys failure); available for domains
+// that surface inline error records (e.g. batch/fine-tuning result files).
+message Error {
+  string message = 1;
+  string type = 2;
+  optional string param = 3;
+  optional string code = 4;
+}
+
+message ErrorResponse {
+  Error error = 1;
+}

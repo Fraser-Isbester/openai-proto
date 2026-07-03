@@ -1,0 +1,12 @@
+version: v1
+plugins:
+  - plugin: buf.build/protocolbuffers/go:v1.33.0
+    out: gen/go
+    opt: paths=source_relative
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: gen/go
+    opt: paths=source_relative
+  - plugin: buf.build/community/timostamm-protobuf-ts:v2.9.3
+    out: gen/ts
+  - plugin: buf.build/protocolbuffers/python:v26.1
+    out: gen/python

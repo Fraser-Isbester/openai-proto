@@ -1,0 +1,483 @@
+syntax = "proto3";
+
+package openai.responses.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/responses/v1;responsesv1";
+
+import "google/protobuf/struct.proto";
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum ResponseStatus {
+  RESPONSE_STATUS_UNSPECIFIED = 0;
+  RESPONSE_STATUS_QUEUED = 1;
+  RESPONSE_STATUS_IN_PROGRESS = 2;
+  RESPONSE_STATUS_COMPLETED = 3;
+  RESPONSE_STATUS_FAILED = 4;
+  RESPONSE_STATUS_INCOMPLETE = 5;
+  RESPONSE_STATUS_CANCELLED = 6;
+}
+
+// Role shared by input and output messages. Output messages are always
+// RESPONSE_ROLE_ASSISTANT; input messages accept user/system/developer.
+enum ResponseRole {
+  RESPONSE_ROLE_UNSPECIFIED = 0;
+  RESPONSE_ROLE_USER = 1;
+  RESPONSE_ROLE_ASSISTANT = 2;
+  RESPONSE_ROLE_SYSTEM = 3;
+  RESPONSE_ROLE_DEVELOPER = 4;
+}
+
+// Status for message / function_call / reasoning / computer_call items.
+enum ItemStatus {
+  ITEM_STATUS_UNSPECIFIED = 0;
+  ITEM_STATUS_IN_PROGRESS = 1;
+  ITEM_STATUS_COMPLETED = 2;
+  ITEM_STATUS_INCOMPLETE = 3;
+}
+
+enum WebSearchStatus {
+  WEB_SEARCH_STATUS_UNSPECIFIED = 0;
+  WEB_SEARCH_STATUS_IN_PROGRESS = 1;
+  WEB_SEARCH_STATUS_SEARCHING = 2;
+  WEB_SEARCH_STATUS_COMPLETED = 3;
+  WEB_SEARCH_STATUS_FAILED = 4;
+}
+
+enum FileSearchStatus {
+  FILE_SEARCH_STATUS_UNSPECIFIED = 0;
+  FILE_SEARCH_STATUS_IN_PROGRESS = 1;
+  FILE_SEARCH_STATUS_SEARCHING = 2;
+  FILE_SEARCH_STATUS_COMPLETED = 3;
+  FILE_SEARCH_STATUS_INCOMPLETE = 4;
+  FILE_SEARCH_STATUS_FAILED = 5;
+}
+
+enum ImageDetail {
+  IMAGE_DETAIL_UNSPECIFIED = 0;
+  IMAGE_DETAIL_AUTO = 1;
+  IMAGE_DETAIL_LOW = 2;
+  IMAGE_DETAIL_HIGH = 3;
+}
+
+enum ToolChoiceMode {
+  TOOL_CHOICE_MODE_UNSPECIFIED = 0;
+  TOOL_CHOICE_MODE_NONE = 1;
+  TOOL_CHOICE_MODE_AUTO = 2;
+  TOOL_CHOICE_MODE_REQUIRED = 3;
+}
+
+enum WebSearchContextSize {
+  WEB_SEARCH_CONTEXT_SIZE_UNSPECIFIED = 0;
+  WEB_SEARCH_CONTEXT_SIZE_LOW = 1;
+  WEB_SEARCH_CONTEXT_SIZE_MEDIUM = 2;
+  WEB_SEARCH_CONTEXT_SIZE_HIGH = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Input content (polymorphic: input_text | input_image | input_file)
+// ---------------------------------------------------------------------------
+
+message InputContent {
+  oneof content {
+    InputTextContent input_text = 1;
+    InputImageContent input_image = 2;
+    InputFileContent input_file = 3;
+  }
+}
+
+message InputTextContent {
+  string text = 1;
+}
+
+message InputImageContent {
+  optional string image_url = 1;
+  optional string file_id = 2;
+  ImageDetail detail = 3;
+}
+
+message InputFileContent {
+  optional string file_id = 1;
+  optional string filename = 2;
+  optional string file_data = 3;
+  optional string file_url = 4;
+}
+
+// ---------------------------------------------------------------------------
+// Output content (polymorphic: output_text | refusal | reasoning_text)
+// ---------------------------------------------------------------------------
+
+message OutputContent {
+  oneof content {
+    OutputTextContent output_text = 1;
+    RefusalContent refusal = 2;
+    ReasoningTextContent reasoning_text = 3;
+  }
+}
+
+message OutputTextContent {
+  string text = 1;
+  repeated google.protobuf.Struct annotations = 2;
+  repeated google.protobuf.Struct logprobs = 3;
+}
+
+message RefusalContent {
+  string refusal = 1;
+}
+
+message ReasoningTextContent {
+  string text = 1;
+}
+
+message SummaryTextContent {
+  string text = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Input: a plain string, or an array of typed input items.
+// ---------------------------------------------------------------------------
+
+message Input {
+  oneof input {
+    string text = 1;
+    InputItemList item_list = 2;
+  }
+}
+
+message InputItemList {
+  repeated InputItem items = 1;
+}
+
+message InputItem {
+  oneof item {
+    InputMessage message = 1;
+    OutputMessage output_message = 2;
+    FunctionToolCall function_call = 3;
+    FunctionCallOutput function_call_output = 4;
+    WebSearchToolCall web_search_call = 5;
+    FileSearchToolCall file_search_call = 6;
+    ComputerToolCall computer_call = 7;
+    ReasoningItem reasoning = 8;
+    ItemReference item_reference = 9;
+  }
+}
+
+message InputMessage {
+  ResponseRole role = 1;
+  repeated InputContent content = 2;
+  optional ItemStatus status = 3;
+}
+
+// A reference to an existing item by id (item_reference).
+message ItemReference {
+  string id = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Output items
+// ---------------------------------------------------------------------------
+
+message OutputItem {
+  oneof item {
+    OutputMessage message = 1;
+    FunctionToolCall function_call = 2;
+    FunctionCallOutput function_call_output = 3;
+    FileSearchToolCall file_search_call = 4;
+    WebSearchToolCall web_search_call = 5;
+    ComputerToolCall computer_call = 6;
+    ReasoningItem reasoning = 7;
+  }
+}
+
+message OutputMessage {
+  string id = 1;
+  ResponseRole role = 2;
+  repeated OutputContent content = 3;
+  ItemStatus status = 4;
+}
+
+message FunctionToolCall {
+  optional string id = 1;
+  string call_id = 2;
+  string name = 3;
+  string arguments = 4;
+  optional ItemStatus status = 5;
+  optional string namespace = 6;
+}
+
+message FunctionCallOutput {
+  optional string id = 1;
+  string call_id = 2;
+  oneof output {
+    string output_text = 3;
+    google.protobuf.Struct output_content = 4;
+  }
+  optional ItemStatus status = 5;
+}
+
+message WebSearchToolCall {
+  string id = 1;
+  WebSearchStatus status = 2;
+  google.protobuf.Struct action = 3;
+}
+
+message FileSearchToolCall {
+  string id = 1;
+  FileSearchStatus status = 2;
+  repeated string queries = 3;
+  repeated google.protobuf.Struct results = 4;
+}
+
+message ComputerToolCall {
+  string id = 1;
+  string call_id = 2;
+  google.protobuf.Struct action = 3;
+  repeated google.protobuf.Struct pending_safety_checks = 4;
+  ItemStatus status = 5;
+}
+
+message ReasoningItem {
+  string id = 1;
+  repeated SummaryTextContent summary = 2;
+  repeated ReasoningTextContent content = 3;
+  optional string encrypted_content = 4;
+  optional ItemStatus status = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Tools (built-in tools distinct from chat/v1)
+// ---------------------------------------------------------------------------
+
+message Tool {
+  oneof tool {
+    FunctionTool function = 1;
+    FileSearchTool file_search = 2;
+    WebSearchTool web_search = 3;
+    ComputerUseTool computer_use = 4;
+  }
+}
+
+message FunctionTool {
+  string name = 1;
+  optional string description = 2;
+  optional google.protobuf.Struct parameters = 3;
+  optional bool strict = 4;
+}
+
+message FileSearchTool {
+  repeated string vector_store_ids = 1;
+  optional int32 max_num_results = 2;
+  optional google.protobuf.Struct ranking_options = 3;
+  optional google.protobuf.Struct filters = 4;
+}
+
+message WebSearchTool {
+  optional WebSearchContextSize search_context_size = 1;
+  optional google.protobuf.Struct user_location = 2;
+  optional google.protobuf.Struct filters = 3;
+}
+
+message ComputerUseTool {
+  int32 display_width = 1;
+  int32 display_height = 2;
+  string environment = 3;
+}
+
+// tool_choice: a mode string, a hosted-tool selector, or a named function.
+message ToolChoice {
+  oneof choice {
+    ToolChoiceMode mode = 1;
+    ToolChoiceHostedTool hosted_tool = 2;
+    ToolChoiceFunction function = 3;
+  }
+}
+
+message ToolChoiceHostedTool {
+  string type = 1;
+}
+
+message ToolChoiceFunction {
+  string name = 1;
+}
+
+// ---------------------------------------------------------------------------
+// text.format (text | json_schema | json_object) and reasoning config
+// ---------------------------------------------------------------------------
+
+message ResponseTextConfig {
+  TextFormat format = 1;
+  optional string verbosity = 2;
+}
+
+message TextFormat {
+  oneof format {
+    TextFormatText text = 1;
+    TextFormatJsonSchema json_schema = 2;
+    TextFormatJsonObject json_object = 3;
+  }
+}
+
+message TextFormatText {}
+
+message TextFormatJsonSchema {
+  string name = 1;
+  optional string description = 2;
+  google.protobuf.Struct schema = 3;
+  optional bool strict = 4;
+}
+
+message TextFormatJsonObject {}
+
+message Reasoning {
+  optional string effort = 1;
+  optional string summary = 2;
+  optional string generate_summary = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Usage / error / incomplete details
+// ---------------------------------------------------------------------------
+
+message ResponseUsage {
+  int32 input_tokens = 1;
+  InputTokensDetails input_tokens_details = 2;
+  int32 output_tokens = 3;
+  OutputTokensDetails output_tokens_details = 4;
+  int32 total_tokens = 5;
+}
+
+message InputTokensDetails {
+  int32 cached_tokens = 1;
+}
+
+message OutputTokensDetails {
+  int32 reasoning_tokens = 1;
+}
+
+message ResponseError {
+  string code = 1;
+  string message = 2;
+}
+
+message IncompleteDetails {
+  string reason = 1;
+}
+
+// ---------------------------------------------------------------------------
+// The Response object (shared by Create / Get / Cancel responses)
+// ---------------------------------------------------------------------------
+
+message Response {
+  string id = 1;
+  string object = 2;
+  int64 created_at = 3;
+  optional int64 completed_at = 4;
+  ResponseStatus status = 5;
+  string model = 6;
+  repeated OutputItem output = 7;
+  optional string output_text = 8;
+  ResponseUsage usage = 9;
+  ResponseError error = 10;
+  IncompleteDetails incomplete_details = 11;
+  optional string previous_response_id = 12;
+  repeated Tool tools = 13;
+  ToolChoice tool_choice = 14;
+  map<string, string> metadata = 15;
+  bool parallel_tool_calls = 16;
+  optional string truncation = 17;
+  optional string instructions = 18;
+  Reasoning reasoning = 19;
+  ResponseTextConfig text = 20;
+  optional int32 max_output_tokens = 21;
+  optional double temperature = 22;
+  optional double top_p = 23;
+  optional bool background = 24;
+}
+
+// ---------------------------------------------------------------------------
+// RPC request / response messages
+// ---------------------------------------------------------------------------
+
+message CreateResponseRequest {
+  string model = 1;
+  Input input = 2;
+  optional string instructions = 3;
+  repeated Tool tools = 4;
+  ToolChoice tool_choice = 5;
+  optional double temperature = 6;
+  optional double top_p = 7;
+  optional int32 top_logprobs = 8;
+  optional int32 max_output_tokens = 9;
+  optional int32 max_tool_calls = 10;
+  optional string previous_response_id = 11;
+  optional bool store = 12;
+  optional bool background = 13;
+  optional bool stream = 14;
+  repeated string include = 15;
+  map<string, string> metadata = 16;
+  Reasoning reasoning = 17;
+  ResponseTextConfig text = 18;
+  optional string truncation = 19;
+  optional bool parallel_tool_calls = 20;
+  optional string user = 21;
+  optional string safety_identifier = 22;
+  optional string prompt_cache_key = 23;
+  optional string service_tier = 24;
+}
+
+message CreateResponseResponse {
+  Response response = 1;
+}
+
+// StreamResponse takes the same parameters as CreateResponse; embedded to
+// keep a single source of truth while satisfying unique-RPC-type lint rules.
+message StreamResponseRequest {
+  CreateResponseRequest request = 1;
+}
+
+message GetResponseRequest {
+  string response_id = 1;
+  repeated string include = 2;
+  optional int32 starting_after = 3;
+}
+
+message GetResponseResponse {
+  Response response = 1;
+}
+
+message DeleteResponseRequest {
+  string response_id = 1;
+}
+
+message DeleteResponseResponse {
+  string id = 1;
+  string object = 2;
+  bool deleted = 3;
+}
+
+message CancelResponseRequest {
+  string response_id = 1;
+}
+
+message CancelResponseResponse {
+  Response response = 1;
+}
+
+message ListInputItemsRequest {
+  string response_id = 1;
+  optional string after = 2;
+  optional string before = 3;
+  optional int32 limit = 4;
+  optional string order = 5;
+  repeated string include = 6;
+}
+
+message ListInputItemsResponse {
+  string object = 1;
+  repeated InputItem data = 2;
+  bool has_more = 3;
+  optional string first_id = 4;
+  optional string last_id = 5;
+}

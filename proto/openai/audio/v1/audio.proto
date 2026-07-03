@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package openai.audio.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/audio/v1;audiov1";
+
+enum Voice {
+  VOICE_UNSPECIFIED = 0;
+  VOICE_ALLOY = 1;
+  VOICE_ASH = 2;
+  VOICE_BALLAD = 3;
+  VOICE_CORAL = 4;
+  VOICE_ECHO = 5;
+  VOICE_FABLE = 6;
+  VOICE_ONYX = 7;
+  VOICE_NOVA = 8;
+  VOICE_SAGE = 9;
+  VOICE_SHIMMER = 10;
+  VOICE_VERSE = 11;
+  VOICE_MARIN = 12;
+  VOICE_CEDAR = 13;
+}
+
+enum SpeechResponseFormat {
+  SPEECH_RESPONSE_FORMAT_UNSPECIFIED = 0;
+  SPEECH_RESPONSE_FORMAT_MP3 = 1;
+  SPEECH_RESPONSE_FORMAT_OPUS = 2;
+  SPEECH_RESPONSE_FORMAT_AAC = 3;
+  SPEECH_RESPONSE_FORMAT_FLAC = 4;
+  SPEECH_RESPONSE_FORMAT_WAV = 5;
+  SPEECH_RESPONSE_FORMAT_PCM = 6;
+}
+
+enum TranscriptionResponseFormat {
+  TRANSCRIPTION_RESPONSE_FORMAT_UNSPECIFIED = 0;
+  TRANSCRIPTION_RESPONSE_FORMAT_JSON = 1;
+  TRANSCRIPTION_RESPONSE_FORMAT_TEXT = 2;
+  TRANSCRIPTION_RESPONSE_FORMAT_SRT = 3;
+  TRANSCRIPTION_RESPONSE_FORMAT_VERBOSE_JSON = 4;
+  TRANSCRIPTION_RESPONSE_FORMAT_VTT = 5;
+}
+
+enum TimestampGranularity {
+  TIMESTAMP_GRANULARITY_UNSPECIFIED = 0;
+  TIMESTAMP_GRANULARITY_WORD = 1;
+  TIMESTAMP_GRANULARITY_SEGMENT = 2;
+}
+
+// A word-level timestamp, returned when timestamp_granularities includes word.
+message Word {
+  string word = 1;
+  double start = 2;
+  double end = 3;
+}
+
+// A segment-level transcription entry (verbose_json).
+message Segment {
+  int32 id = 1;
+  int32 seek = 2;
+  double start = 3;
+  double end = 4;
+  string text = 5;
+  repeated int32 tokens = 6;
+  double temperature = 7;
+  double avg_logprob = 8;
+  double compression_ratio = 9;
+  double no_speech_prob = 10;
+}
+
+message CreateSpeechRequest {
+  string model = 1;
+  string input = 2;
+  Voice voice = 3;
+  optional SpeechResponseFormat response_format = 4;
+  optional double speed = 5;
+  optional string instructions = 6;
+}
+
+// Raw synthesized audio in the requested response_format.
+message CreateSpeechResponse {
+  bytes audio = 1;
+  string content_type = 2;
+}
+
+message CreateSpeechStreamRequest {
+  string model = 1;
+  string input = 2;
+  Voice voice = 3;
+  optional SpeechResponseFormat response_format = 4;
+  optional double speed = 5;
+  optional string instructions = 6;
+}
+
+// One chunk of a chunk-transfer-encoded audio stream.
+message CreateSpeechStreamResponse {
+  bytes chunk = 1;
+}
+
+message CreateTranscriptionRequest {
+  bytes file = 1;
+  string filename = 2;
+  string model = 3;
+  optional string language = 4;
+  optional string prompt = 5;
+  optional TranscriptionResponseFormat response_format = 6;
+  optional double temperature = 7;
+  repeated TimestampGranularity timestamp_granularities = 8;
+  optional bool stream = 9;
+}
+
+// Verbose-json shape; text is always populated regardless of response_format.
+message CreateTranscriptionResponse {
+  string text = 1;
+  optional string language = 2;
+  optional double duration = 3;
+  repeated Word words = 4;
+  repeated Segment segments = 5;
+}
+
+message CreateTranscriptionStreamRequest {
+  bytes file = 1;
+  string filename = 2;
+  string model = 3;
+  optional string language = 4;
+  optional string prompt = 5;
+  optional TranscriptionResponseFormat response_format = 6;
+  optional double temperature = 7;
+  repeated TimestampGranularity timestamp_granularities = 8;
+}
+
+message CreateTranscriptionStreamResponse {
+  oneof event {
+    TranscriptionTextDelta delta = 1;
+    TranscriptionTextDone done = 2;
+  }
+}
+
+// transcript.text.delta event.
+message TranscriptionTextDelta {
+  string delta = 1;
+}
+
+// transcript.text.done event.
+message TranscriptionTextDone {
+  string text = 1;
+}
+
+message CreateTranslationRequest {
+  bytes file = 1;
+  string filename = 2;
+  string model = 3;
+  optional string prompt = 4;
+  optional TranscriptionResponseFormat response_format = 5;
+  optional double temperature = 6;
+}
+
+// Translation into English; no language field since output is always English.
+message CreateTranslationResponse {
+  string text = 1;
+  optional double duration = 2;
+  repeated Segment segments = 3;
+}

@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package openai.batch.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/batch/v1;batchv1";
+
+import "openai/common/v1/common.proto";
+
+enum BatchStatus {
+  BATCH_STATUS_UNSPECIFIED = 0;
+  BATCH_STATUS_VALIDATING = 1;
+  BATCH_STATUS_FAILED = 2;
+  BATCH_STATUS_IN_PROGRESS = 3;
+  BATCH_STATUS_FINALIZING = 4;
+  BATCH_STATUS_COMPLETED = 5;
+  BATCH_STATUS_EXPIRED = 6;
+  BATCH_STATUS_CANCELLING = 7;
+  BATCH_STATUS_CANCELLED = 8;
+}
+
+message Batch {
+  string id = 1;
+  string object = 2;
+  string endpoint = 3;
+  optional string model = 4;
+  optional BatchErrors errors = 5;
+  string input_file_id = 6;
+  string completion_window = 7;
+  BatchStatus status = 8;
+  optional string output_file_id = 9;
+  optional string error_file_id = 10;
+  int64 created_at = 11;
+  optional int64 in_progress_at = 12;
+  optional int64 expires_at = 13;
+  optional int64 finalizing_at = 14;
+  optional int64 completed_at = 15;
+  optional int64 failed_at = 16;
+  optional int64 expired_at = 17;
+  optional int64 cancelling_at = 18;
+  optional int64 cancelled_at = 19;
+  RequestCounts request_counts = 20;
+  optional Usage usage = 21;
+  map<string, string> metadata = 22;
+}
+
+message RequestCounts {
+  int32 total = 1;
+  int32 completed = 2;
+  int32 failed = 3;
+}
+
+message BatchErrors {
+  repeated BatchError data = 1;
+  optional string object = 2;
+}
+
+message BatchError {
+  openai.common.v1.Error error = 1;
+  optional int32 line = 2;
+}
+
+message Usage {
+  int32 input_tokens = 1;
+  InputTokensDetails input_tokens_details = 2;
+  int32 output_tokens = 3;
+  OutputTokensDetails output_tokens_details = 4;
+  int32 total_tokens = 5;
+}
+
+message InputTokensDetails {
+  int32 cached_tokens = 1;
+}
+
+message OutputTokensDetails {
+  int32 reasoning_tokens = 1;
+}

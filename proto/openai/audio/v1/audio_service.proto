@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package openai.audio.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/audio/v1;audiov1";
+
+import "openai/audio/v1/audio.proto";
+
+service AudioService {
+  // POST /v1/audio/speech (text-to-speech)
+  rpc CreateSpeech (CreateSpeechRequest) returns (CreateSpeechResponse);
+
+  // POST /v1/audio/speech with chunked/streaming audio output
+  rpc CreateSpeechStream (CreateSpeechStreamRequest) returns (stream CreateSpeechStreamResponse);
+
+  // POST /v1/audio/transcriptions (speech-to-text)
+  rpc CreateTranscription (CreateTranscriptionRequest) returns (CreateTranscriptionResponse);
+
+  // POST /v1/audio/transcriptions with stream=true
+  rpc CreateTranscriptionStream (CreateTranscriptionStreamRequest) returns (stream CreateTranscriptionStreamResponse);
+
+  // POST /v1/audio/translations (translate any language to English)
+  rpc CreateTranslation (CreateTranslationRequest) returns (CreateTranslationResponse);
+}

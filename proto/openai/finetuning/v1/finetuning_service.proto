@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package openai.finetuning.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/finetuning/v1;finetuningv1";
+
+import "openai/finetuning/v1/finetuning_messages.proto";
+
+service FineTuningService {
+  // POST /v1/fine_tuning/jobs
+  rpc CreateJob (CreateJobRequest) returns (CreateJobResponse);
+
+  // GET /v1/fine_tuning/jobs
+  rpc ListJobs (ListJobsRequest) returns (ListJobsResponse);
+
+  // GET /v1/fine_tuning/jobs/{job_id}
+  rpc RetrieveJob (RetrieveJobRequest) returns (RetrieveJobResponse);
+
+  // POST /v1/fine_tuning/jobs/{job_id}/cancel
+  rpc CancelJob (CancelJobRequest) returns (CancelJobResponse);
+
+  // GET /v1/fine_tuning/jobs/{job_id}/events
+  rpc ListEvents (ListEventsRequest) returns (ListEventsResponse);
+
+  // GET /v1/fine_tuning/jobs/{job_id}/checkpoints
+  rpc ListCheckpoints (ListCheckpointsRequest) returns (ListCheckpointsResponse);
+}
+
+message CreateJobRequest {
+  string model = 1;
+  string training_file = 2;
+  optional string validation_file = 3;
+  // Deprecated in favor of method; kept for backwards compatibility.
+  optional SupervisedHyperparameters hyperparameters = 4;
+  optional string suffix = 5;
+  optional int64 seed = 6;
+  repeated Integration integrations = 7;
+  optional Method method = 8;
+  map<string, string> metadata = 9;
+}
+
+message CreateJobResponse {
+  Job job = 1;
+}
+
+message ListJobsRequest {
+  optional string after = 1;
+  optional int32 limit = 2;
+  map<string, string> metadata = 3;
+}
+
+message ListJobsResponse {
+  repeated Job data = 1;
+  bool has_more = 2;
+  optional string object = 3;
+}
+
+message RetrieveJobRequest {
+  string job_id = 1;
+}
+
+message RetrieveJobResponse {
+  Job job = 1;
+}
+
+message CancelJobRequest {
+  string job_id = 1;
+}
+
+message CancelJobResponse {
+  Job job = 1;
+}
+
+message ListEventsRequest {
+  string job_id = 1;
+  optional string after = 2;
+  optional int32 limit = 3;
+}
+
+message ListEventsResponse {
+  repeated JobEvent data = 1;
+  bool has_more = 2;
+  optional string object = 3;
+}
+
+message ListCheckpointsRequest {
+  string job_id = 1;
+  optional string after = 2;
+  optional int32 limit = 3;
+}
+
+message ListCheckpointsResponse {
+  repeated Checkpoint data = 1;
+  bool has_more = 2;
+  optional string object = 3;
+}

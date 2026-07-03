@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package openai.uploads.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/uploads/v1;uploadsv1";
+
+import "openai/uploads/v1/uploads_messages.proto";
+
+service UploadsService {
+  // POST /v1/uploads — creates an intended upload to receive byte parts.
+  rpc CreateUpload (CreateUploadRequest) returns (CreateUploadResponse);
+
+  // POST /v1/uploads/{upload_id}/parts — adds a chunk of bytes to an upload.
+  rpc AddUploadPart (AddUploadPartRequest) returns (AddUploadPartResponse);
+
+  // POST /v1/uploads/{upload_id}/complete — completes an upload from its ordered parts.
+  rpc CompleteUpload (CompleteUploadRequest) returns (CompleteUploadResponse);
+
+  // POST /v1/uploads/{upload_id}/cancel — cancels an in-progress upload.
+  rpc CancelUpload (CancelUploadRequest) returns (CancelUploadResponse);
+}

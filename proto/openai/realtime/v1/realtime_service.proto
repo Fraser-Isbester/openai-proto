@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package openai.realtime.v1;
+
+option go_package = "github.com/openai/openai-proto/gen/go/openai/realtime/v1;realtimev1";
+
+import "openai/realtime/v1/realtime_client_events.proto";
+import "openai/realtime/v1/realtime_server_events.proto";
+
+service RealtimeService {
+  // Bidirectional-streaming RPC modeling the persistent Realtime connection
+  // (a WebSocket in the REST API). The client streams ClientEvents (audio,
+  // config, response triggers) at any time while the server independently
+  // streams ServerEvents (transcription/audio/text deltas, lifecycle events);
+  // neither side proceeds in lockstep.
+  rpc Connect(stream ConnectRequest) returns (stream ConnectResponse);
+}
+
+// Thin envelope carrying one ClientEvent per stream message. ClientEvent is
+// the natural payload name; the wrapper exists to satisfy the RPC request
+// naming convention for the Connect method.
+message ConnectRequest {
+  ClientEvent client_event = 1;
+}
+
+// Thin envelope carrying one ServerEvent per stream message.
+message ConnectResponse {
+  ServerEvent server_event = 1;
+}
